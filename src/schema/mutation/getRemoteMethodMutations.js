@@ -64,10 +64,10 @@ module.exports = function getRemoteMethodMutations(model) {
 
                                 // TODO: better implemention of exluding it
                                 let ctxOptions;
-                                if (model.modelName == "user" && method.name == "login") {
-                                    let ctxOptions = "";
+                                if (model.modelName === 'user' && method.name === 'login') {
+                                    ctxOptions = "";
                                 } else {
-                                    let ctxOptions = { accessToken: context.req.accessToken }
+                                    ctxOptions = { accessToken: context.req.accessToken }
                                 }
                                 let wrap = promisify(model[method.name](...params, ctxOptions));
 
