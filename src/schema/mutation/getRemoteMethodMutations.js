@@ -64,7 +64,7 @@ module.exports = function getRemoteMethodMutations(model) {
 
                                 // TODO: better implemention of exluding it
                                 let ctxOptions;
-                                if (model.modelName === 'user' && method.name === 'login') {
+                                if (model.modelName == "Account" && method.name == "login") {
                                     ctxOptions = "";
                                 } else {
                                     ctxOptions = { accessToken: context.req.accessToken }
