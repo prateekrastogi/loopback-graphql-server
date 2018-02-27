@@ -47,23 +47,8 @@ module.exports = function getRemoteMethodQueries(model, options) {
                             options: options
                         })
                             .then(() => {
-                                let params = [];
+                                let params = utils.getLoopbackMethodParams(acceptingParams, loopbackAcceptMethodParams, args, context);
 
-                                _.forEach(acceptingParams, (param, name) => {
-                                    let loopbackParam = _.find(loopbackAcceptMethodParams, {arg: name});
-                                    if (args[name] && Object.keys(args[name]).length > 0) {
-                                        if (typeof args[name] === 'string') {
-                                            params.push(args[name])
-                                        } else {
-                                            params.push(_.cloneDeep(args[name]))
-                                        }
-                                    } else if (loopbackParam && loopbackParam.http && loopbackParam.http.source) {
-                                        // This is for custom remote methods
-                                        if (context[name]) {
-                                            params.push(context[name]);
-                                        }
-                                    }
-                                });
                                 // If custom remote method call, probably add better checking
                                 if (method.accessType === undefined) {
                                     return promisify(model[method.name]).apply(this, params);

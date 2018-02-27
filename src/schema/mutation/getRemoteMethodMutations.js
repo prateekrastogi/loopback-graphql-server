@@ -32,6 +32,7 @@ module.exports = function getRemoteMethodMutations(model) {
 
                 const typeObj = utils.getRemoteMethodOutput(method);
                 const acceptingParams = utils.getRemoteMethodInput(method, typeObj.list);
+                const loopbackAcceptMethodParams = method.accepts;
                 const hookName = utils.getRemoteMethodQueryName(model, method);
 
                 hooks[hookName] = mutationWithClientMutationId({
@@ -48,33 +49,21 @@ module.exports = function getRemoteMethodMutations(model) {
                     mutateAndGetPayload: (args, context) => {
 
                         let modelId = args && args.id;
-                        return checkAccess({ accessToken: context.req.accessToken, model: model, method: method, id: modelId })
+                        return checkAccess({
+                            accessToken: context.req.accessToken, model: model, method: method, id: modelId })
                             .then(() => {
-                                let params = [];
+                                let params = utils.getLoopbackMethodParams(acceptingParams, loopbackAcceptMethodParams, args, context);
+                                let isLogin = model.modelName === "Account" && method.name === "login";
 
-                                _.forEach(acceptingParams, (param, name) => {
-                                    if (args[name] && Object.keys(args[name]).length > 0) {
-                                        if (typeof args[name] === 'string') {
-                                            params.push(args[name])
-                                        } else {
-                                            params.push(_.cloneDeep(args[name]))
-                                        }
-                                    }
-                                });
-
-                                // TODO: better implemention of exluding it
-                                let ctxOptions;
-                                if (model.modelName == "Account" && method.name == "login") {
-                                    ctxOptions = "";
+                                // If custom remote method call, probably add better checking
+                                if (method.accessType === undefined && !isLogin) {
+                                    return promisify(model[method.name]).apply(this, params);
                                 } else {
-                                    ctxOptions = { accessToken: context.req.accessToken }
-                                }
-                                let wrap = promisify(model[method.name](...params, ctxOptions));
-
-                                if (typeObj.list) {
-                                    return connectionFromPromisedArray(wrap, args, model);
-                                } else {
-                                    return wrap;
+                                    // TODO: better implemention of exluding it
+                                    let ctxOptions;
+                                    ctxOptions = isLogin ? "" : {accessToken: context.req.accessToken};
+                                    let wrap = promisify(model[method.name](...params, ctxOptions));
+                                    return typeObj.list ? connectionFromPromisedArray(wrap, args, model) : wrap;
                                 }
 
                             })

@@ -114,10 +114,40 @@ function getRemoteMethodQueryName(model, method) {
     return `${model.modelName}${_.upperFirst(method.name)}`;
 }
 
+/**
+ * Update params array with values for using in loopback method
+ * @param acceptingParams
+ * @param loopbackAcceptMethodParams
+ * @param args
+ * @param context
+ * @private
+ */
+function getLoopbackMethodParams(acceptingParams, loopbackAcceptMethodParams, args, context) {
+    let params = [];
+    _.forEach(acceptingParams, (param, name) => {
+        let loopbackParam = _.find(loopbackAcceptMethodParams, {arg: name});
+        if (args[name] && Object.keys(args[name]).length > 0) {
+            if (typeof args[name] === 'string') {
+                params.push(args[name])
+            } else {
+                params.push(_.cloneDeep(args[name]))
+            }
+        } else if (loopbackParam && loopbackParam.http && loopbackParam.http.source) {
+            // This is for custom remote methods
+            if (context[name]) {
+                params.push(context[name]);
+            }
+        }
+    });
+
+    return params;
+}
+
 module.exports = {
     exchangeTypes,
     isRemoteMethodAllowed,
     getRemoteMethodInput,
     getRemoteMethodOutput,
-    getRemoteMethodQueryName
+    getRemoteMethodQueryName,
+    getLoopbackMethodParams
 };
