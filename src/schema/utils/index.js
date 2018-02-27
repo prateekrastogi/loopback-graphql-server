@@ -137,6 +137,8 @@ function getLoopbackMethodParams(acceptingParams, loopbackAcceptMethodParams, ar
             if (context[name]) {
                 params.push(context[name]);
             }
+        } else {
+            params.push(undefined);
         }
     });
 
