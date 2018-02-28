@@ -52,11 +52,13 @@ module.exports = function getRemoteMethodMutations(model) {
                         return checkAccess({
                             accessToken: context.req.accessToken, model: model, method: method, id: modelId })
                             .then(() => {
-                                let params = utils.getLoopbackMethodParams(acceptingParams, loopbackAcceptMethodParams, args, context);
+                                // probably add better checking
+                                let isCustomMethod = method.accessType === undefined;
+                                let params = utils.getLoopbackMethodParams(acceptingParams, loopbackAcceptMethodParams, args, context, isCustomMethod);
                                 let isLogin = model.modelName === "Account" && method.name === "login";
 
                                 // If custom remote method call, probably add better checking
-                                if (method.accessType === undefined && !isLogin) {
+                                if (isCustomMethod && !isLogin) {
                                     return promisify(model[method.name]).apply(this, params);
                                 } else {
                                     // TODO: better implemention of exluding it

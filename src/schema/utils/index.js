@@ -120,9 +120,10 @@ function getRemoteMethodQueryName(model, method) {
  * @param loopbackAcceptMethodParams
  * @param args
  * @param context
+ * @param isCustomMethod
  * @private
  */
-function getLoopbackMethodParams(acceptingParams, loopbackAcceptMethodParams, args, context) {
+function getLoopbackMethodParams(acceptingParams, loopbackAcceptMethodParams, args, context, isCustomMethod) {
     let params = [];
     _.forEach(acceptingParams, (param, name) => {
         let loopbackParam = _.find(loopbackAcceptMethodParams, {arg: name});
@@ -137,7 +138,7 @@ function getLoopbackMethodParams(acceptingParams, loopbackAcceptMethodParams, ar
             if (context[name]) {
                 params.push(context[name]);
             }
-        } else {
+        } else if(isCustomMethod) {
             params.push(undefined);
         }
     });

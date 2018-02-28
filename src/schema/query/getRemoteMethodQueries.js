@@ -47,10 +47,11 @@ module.exports = function getRemoteMethodQueries(model, options) {
                             options: options
                         })
                             .then(() => {
-                                let params = utils.getLoopbackMethodParams(acceptingParams, loopbackAcceptMethodParams, args, context);
-
+                                // probably add better checking
+                                let isCustomMethod = method.accessType === undefined;
+                                let params = utils.getLoopbackMethodParams(acceptingParams, loopbackAcceptMethodParams, args, context, isCustomMethod);
                                 // If custom remote method call, probably add better checking
-                                if (method.accessType === undefined) {
+                                if (isCustomMethod) {
                                     return promisify(model[method.name]).apply(this, params);
                                 } else {
                                     let ctxOptions = { accessToken: context.req.accessToken };
