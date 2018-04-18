@@ -127,14 +127,18 @@ function getLoopbackMethodParams(acceptingParams, loopbackAcceptMethodParams, ar
     let params = [];
     _.forEach(acceptingParams, (param, name) => {
         let loopbackParam = _.find(loopbackAcceptMethodParams, {arg: name});
-        if (args[name] && Object.keys(args[name]).length > 0) {
+        if (args[name]) {
+          if(Object.keys(args[name]).length > 0){
             if (typeof args[name] === 'string') {
-                params.push(args[name])
+            params.push(args[name])
             } else {
-                params.push(_.cloneDeep(args[name]))
-            }
-        } else if (loopbackParam && loopbackParam.http && loopbackParam.http.source) {
-            // This is for custom remote methods
+            params.push(_.cloneDeep(args[name]))
+          }} else if (typeof args[name] === 'number' || typeof args[name] === 'boolean')
+          {
+            params.push(args[name])
+          }
+        } else if (loopbackParam && loopbackParam.http) {
+          // This is for custom remote methods
             if (context[name]) {
                 params.push(context[name]);
             }

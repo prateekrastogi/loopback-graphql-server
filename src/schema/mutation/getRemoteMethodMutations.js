@@ -54,7 +54,12 @@ module.exports = function getRemoteMethodMutations(model) {
                             .then(() => {
                                 // probably add better checking
                                 let isCustomMethod = method.accessType === undefined;
-                                let params = utils.getLoopbackMethodParams(acceptingParams, loopbackAcceptMethodParams, args, context, isCustomMethod);
+
+                                let ctxOptions = { accessToken: context.req.accessToken };
+                                let localContext = {...context}
+                                localContext.options = ctxOptions
+
+                                let params = utils.getLoopbackMethodParams(acceptingParams, loopbackAcceptMethodParams, args, localContext, isCustomMethod);
                                 let isLogin = model.modelName === "Account" && method.name === "login";
 
                                 // If custom remote method call, probably add better checking
@@ -62,7 +67,6 @@ module.exports = function getRemoteMethodMutations(model) {
                                     return promisify(model[method.name]).apply(this, params);
                                 } else {
                                     // TODO: better implemention of exluding it
-                                    let ctxOptions;
                                     ctxOptions = isLogin ? "" : {accessToken: context.req.accessToken};
                                     let wrap = promisify(model[method.name](...params, ctxOptions));
                                     return typeObj.list ? connectionFromPromisedArray(wrap, args, model) : wrap;
