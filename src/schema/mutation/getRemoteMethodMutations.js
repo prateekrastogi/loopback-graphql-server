@@ -64,7 +64,7 @@ module.exports = function getRemoteMethodMutations(model) {
 
                                 // If custom remote method call, probably add better checking
                                 if (isCustomMethod && !isLogin) {
-                                    return promisify(model[method.name]).apply(this, params);
+                                    return promisify(model[method.name](...params));
                                 } else {
                                     // TODO: better implemention of exluding it
                                     ctxOptions = isLogin ? "" : {accessToken: context.req.accessToken};
