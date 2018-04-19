@@ -71,7 +71,7 @@ module.exports = function getRemoteMethodMutations(model) {
                                     wrap = promisify(model[method.name](...params, ctxOptions));
                                     }
 
-                            return typeObj.list ? connectionFromPromisedArray(wrap, args, model) : wrap;
+                                return typeObj.list ? connectionFromPromisedArray(wrap, args, model) : wrap;
                             })
                             .catch((err) => {
                                 throw err;
