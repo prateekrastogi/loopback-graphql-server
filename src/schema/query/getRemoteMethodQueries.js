@@ -54,14 +54,11 @@ module.exports = function getRemoteMethodQueries(model, options) {
                                 let localContext = {...context}
                                 localContext.options = ctxOptions
                                 
-                                let params = utils.getLoopbackMethodParams(acceptingParams, loopbackAcceptMethodParams, args, localContext, isCustomMethod);
-                                // If custom remote method call, probably add better checking
-                                if (isCustomMethod) {
-                                    return promisify(model[method.name](...params));
-                                } else {
-                                    let wrap = promisify(model[method.name](params.length > 1 ? _.merge(...params) : params[0], ctxOptions));
-                                    return typeObj.list ? connectionFromPromisedArray(wrap, args, model) : wrap;
-                                }
+                                let params = utils.getLoopbackMethodParams(acceptingParams, loopbackAcceptMethodParams, args, localContext, isCustomMethod)
+                                
+                                let wrap = isCustomMethod ? promisify(model[method.name](...params)) : promisify(model[method.name](params.length > 1 ? _.merge(...params) : params[0], ctxOptions));
+                                return typeObj.list ? connectionFromPromisedArray(wrap, args, model) : wrap;
+                               
 
                             })
                             .catch((err) => {
